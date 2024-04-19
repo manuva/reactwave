@@ -56,35 +56,41 @@ const AudioVisualizer = () => {
 
   const drawVisualizer = () => {
     if (!analyserNode || !canvasRef.current) return;
-
+  
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const bufferLength = analyserNode.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
-
+  
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+  
+    // Set background color
+    ctx.fillStyle = 'lightgray';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
     const draw = () => {
       const drawVisuals = requestAnimationFrame(draw);
-
+  
       analyserNode.getByteFrequencyData(dataArray);
-
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+  
+      // Set line color
+      ctx.strokeStyle = 'blue';
+  
       const barWidth = (canvas.width / bufferLength) * 2.5;
       let x = 0;
-
+  
       for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i];
-
-        ctx.fillStyle = `rgb(${barHeight + 100},50,50)`;
-        ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
-
+  
+        ctx.beginPath();
+        ctx.moveTo(x, canvas.height);
+        ctx.lineTo(x, canvas.height - barHeight / 2);
+        ctx.stroke();
+  
         x += barWidth + 1;
       }
     };
-
+  
     draw();
   };
 
