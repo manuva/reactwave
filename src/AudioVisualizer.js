@@ -69,7 +69,7 @@ const AudioVisualizer = () => {
 
       analyserNode.getByteFrequencyData(dataArray);
 
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillStyle = 'transparent';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const barWidth = (canvas.width / bufferLength) * 2.5;
