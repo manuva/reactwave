@@ -65,7 +65,7 @@ const AudioVisualizer = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   
     // Set background color
-    ctx.fillStyle = 'transparent';
+    ctx.fillStyle = 'lightgray';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   
     const draw = () => {
@@ -73,19 +73,16 @@ const AudioVisualizer = () => {
   
       analyserNode.getByteFrequencyData(dataArray);
   
-      // Set line color
-      ctx.strokeStyle = 'red';
+      // Set bar color
+      ctx.fillStyle = 'blue'; // Change this to customize the bars' color
   
-      const barWidth = (canvas.width / bufferLength) * 5.5;
+      const barWidth = (canvas.width / bufferLength) * 2.5;
       let x = 0;
   
       for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i];
   
-        ctx.beginPath();
-        ctx.moveTo(x, canvas.height);
-        ctx.lineTo(x, canvas.height - barHeight / 2);
-        ctx.stroke();
+        ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
   
         x += barWidth + 1;
       }
@@ -93,6 +90,7 @@ const AudioVisualizer = () => {
   
     draw();
   };
+  
 
   const detectBeat = () => {
     if (!analyserNode) return;
