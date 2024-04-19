@@ -5,6 +5,8 @@ const AudioVisualizer = () => {
   const [canvasRef, setCanvasRef] = useState(null);
 
   const handleFileChange = async (e) => {
+    e.preventDefault(); // Prevent page reload
+
     const file = e.target.files[0];
     if (!file) return;
 
