@@ -124,12 +124,16 @@ const AudioVisualizer = () => {
 
   return (
     <div>
-      <input type="file" accept="audio/mp3" onChange={handleFileChange} />
-      <button onClick={togglePlayback}>
-        {isPlaying ? 'Pause' : 'Play'}
-      </button>
-      <canvas ref={canvasRef} width={800} height={300} />
-      {beatDetected}
+      <div className="playback-controls">
+        <input type="file" accept="audio/mp3" onChange={handleFileChange} />
+        <button onClick={togglePlayback}>
+          {isPlaying ? 'Pause' : 'Play'}
+        </button>
+      </div>
+      <div className="visualizer">
+        <canvas ref={canvasRef} width={800} height={300} />
+        {beatDetected}
+      </div>
     </div>
   );
 };
