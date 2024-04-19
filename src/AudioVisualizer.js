@@ -126,7 +126,7 @@ const AudioVisualizer = () => {
     <div>
       <div className="playback-controls">
         <input type="file" accept="audio/mp3" onChange={handleFileChange} />
-        <button onClick={togglePlayback}>
+        <button className="btnPlay" onClick={togglePlayback}>
           {isPlaying ? 'Pause' : 'Play'}
         </button>
       </div>
