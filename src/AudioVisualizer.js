@@ -1,10 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const AudioVisualizer = () => {
   const [audioBuffer, setAudioBuffer] = useState(null);
   const [audioContext, setAudioContext] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [sourceNode, setSourceNode] = useState(null);
+  const [analyserNode, setAnalyserNode] = useState(null);
+  const [beatDetected, setBeatDetected] = useState(false);
   const canvasRef = useRef(null);
 
   const handleFileChange = async (e) => {
@@ -38,53 +40,87 @@ const AudioVisualizer = () => {
       setIsPlaying(false);
     } else {
       const source = audioContext.createBufferSource();
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+
       source.buffer = audioBuffer;
-      source.connect(audioContext.destination);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
       source.start();
+
       setSourceNode(source);
+      setAnalyserNode(analyser);
       setIsPlaying(true);
     }
   };
 
-  const drawWaveform = () => {
-    if (!audioBuffer || !canvasRef.current) return;
+  const drawVisualizer = () => {
+    if (!analyserNode || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    const bufferLength = analyserNode.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
 
-    const width = canvas.width;
-    const height = canvas.height;
-    const data = audioBuffer.getChannelData(0);
-    const step = Math.ceil(data.length / width);
-    const amp = height / 2;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.clearRect(0, 0, width, height);
-    ctx.strokeStyle = '#ffffff';
-    ctx.beginPath();
+    const draw = () => {
+      const drawVisuals = requestAnimationFrame(draw);
 
-    for (let i = 0; i < width; i++) {
-      let min = 1.0;
-      let max = -1.0;
+      analyserNode.getByteFrequencyData(dataArray);
 
-      for (let j = 0; j < step; j++) {
-        const datum = data[(i * step) + j];
-        if (datum < min) min = datum;
-        if (datum > max) max = datum;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i];
+
+        ctx.fillStyle = `rgb(${barHeight + 100},50,50)`;
+        ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+
+        x += barWidth + 1;
       }
+    };
 
-      ctx.moveTo(i, (1 + min) * amp);
-      ctx.lineTo(i, (1 + max) * amp);
-    }
-
-    ctx.stroke();
+    draw();
   };
 
-  // Automatically draw waveform when audioBuffer changes
-  React.useEffect(() => {
-    if (audioBuffer) {
-      drawWaveform();
+  const detectBeat = () => {
+    if (!analyserNode) return;
+
+    const bufferLength = analyserNode.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const beatDetection = () => {
+      const beatData = requestAnimationFrame(beatDetection);
+
+      analyserNode.getByteTimeDomainData(dataArray);
+      const average = getAverageVolume(dataArray);
+
+      if (average > 180) {
+        setBeatDetected(true);
+      } else {
+        setBeatDetected(false);
+      }
+    };
+
+    beatDetection();
+  };
+
+  const getAverageVolume = (dataArray) => {
+    const sum = dataArray.reduce((acc, val) => acc + val, 0);
+    return sum / dataArray.length;
+  };
+
+  useEffect(() => {
+    if (isPlaying) {
+      drawVisualizer();
+      detectBeat();
     }
-  }, [audioBuffer]);
+  }, [isPlaying, audioBuffer]);
 
   return (
     <div>
@@ -93,6 +129,7 @@ const AudioVisualizer = () => {
       <button onClick={togglePlayback}>
         {isPlaying ? 'Pause' : 'Play'}
       </button>
+      {beatDetected && <p>Beat detected!</p>}
     </div>
   );
 };
