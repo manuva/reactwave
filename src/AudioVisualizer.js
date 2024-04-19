@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 const AudioVisualizer = () => {
   const [audioBuffer, setAudioBuffer] = useState(null);
-  const [canvasRef, setCanvasRef] = useState(null);
+  const [audioContext, setAudioContext] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [sourceNode, setSourceNode] = useState(null);
+  const canvasRef = useRef(null);
 
   const handleFileChange = async (e) => {
     e.preventDefault(); // Prevent page reload
@@ -18,6 +21,7 @@ const AudioVisualizer = () => {
         const audioData = event.target.result;
         const buffer = await audioContext.decodeAudioData(audioData);
         setAudioBuffer(buffer);
+        setAudioContext(audioContext);
       };
 
       fileReader.readAsArrayBuffer(file);
@@ -26,8 +30,24 @@ const AudioVisualizer = () => {
     }
   };
 
+  const togglePlayback = () => {
+    if (!audioBuffer || !audioContext) return;
+
+    if (isPlaying) {
+      sourceNode.stop();
+      setIsPlaying(false);
+    } else {
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContext.destination);
+      source.start();
+      setSourceNode(source);
+      setIsPlaying(true);
+    }
+  };
+
   const drawWaveform = () => {
-    if (!audioBuffer || !canvasRef) return;
+    if (!audioBuffer || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -69,7 +89,10 @@ const AudioVisualizer = () => {
   return (
     <div>
       <input type="file" accept="audio/mp3" onChange={handleFileChange} />
-      <canvas ref={setCanvasRef} width={800} height={300} />
+      <canvas ref={canvasRef} width={800} height={300} />
+      <button onClick={togglePlayback}>
+        {isPlaying ? 'Pause' : 'Play'}
+      </button>
     </div>
   );
 };
