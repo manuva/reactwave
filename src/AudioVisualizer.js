@@ -129,7 +129,7 @@ const AudioVisualizer = () => {
       <button onClick={togglePlayback}>
         {isPlaying ? 'Pause' : 'Play'}
       </button>
-      {beatDetected && <p>Beat detected!</p>}
+      {beatDetected}
     </div>
   );
 };
