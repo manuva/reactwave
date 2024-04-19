@@ -65,7 +65,7 @@ const AudioVisualizer = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   
     // Set background color
-    ctx.fillStyle = 'lightgray';
+    ctx.fillStyle = 'transparent';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   
     const draw = () => {
@@ -74,9 +74,9 @@ const AudioVisualizer = () => {
       analyserNode.getByteFrequencyData(dataArray);
   
       // Set line color
-      ctx.strokeStyle = 'blue';
+      ctx.strokeStyle = 'red';
   
-      const barWidth = (canvas.width / bufferLength) * 2.5;
+      const barWidth = (canvas.width / bufferLength) * 5.5;
       let x = 0;
   
       for (let i = 0; i < bufferLength; i++) {
