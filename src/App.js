@@ -8,9 +8,9 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>MP3 Audio Visualizer</h1>
+        <AudioVisualizer />
       </header>
       <main>
-        <AudioVisualizer />
       </main>
     </div>
   );
