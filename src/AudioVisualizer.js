@@ -131,7 +131,12 @@ const AudioVisualizer = () => {
         </button>
       </div>
       <div className="visualizer">
-        <canvas ref={canvasRef} width={800} height={300} style={{ backgroundColor: 'green !important' }}/>
+        <canvas ref=
+        {canvasRef} 
+        width={800} 
+        height={300} 
+        style={{ backgroundColor: 'green !important' }}
+        />
         {beatDetected}
       </div>
     </div>
